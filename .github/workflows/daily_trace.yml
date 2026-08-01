@@ -1,0 +1,30 @@
+name: TRACE Daily Digest
+
+on:
+  schedule:
+    - cron: '30 5 * * *'  # 5:30 AM UTC = 11:00 AM IST
+  workflow_dispatch:  # allows manual trigger for testing
+
+jobs:
+  run-trace:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run TRACE pipeline
+        env:
+          HF_API_TOKEN: ${{ secrets.HF_API_TOKEN }}
+          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        run: python main.py
