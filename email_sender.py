@@ -9,7 +9,8 @@ load_dotenv()
 
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
-RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
+RECIPIENT_EMAILS = os.getenv("RECIPIENT_EMAIL", "").strip().split(",")
+RECIPIENT_EMAILS = [email.strip() for email in RECIPIENT_EMAILS if email.strip()]
 
 
 def format_email_body(filtered_articles, summary):
@@ -46,7 +47,7 @@ def send_digest(filtered_articles, summary):
     message = MIMEMultipart("alternative")
     message["Subject"] = f"📰 Daily Tech News - {datetime.now().strftime('%b %d, %Y')}"
     message["From"] = SENDER_EMAIL
-    message["To"] = RECIPIENT_EMAIL
+    message["To"] = ", ".join(RECIPIENT_EMAILS)
     
     html_body = format_email_body(filtered_articles, summary)
     message.attach(MIMEText(html_body, "html"))
@@ -54,9 +55,9 @@ def send_digest(filtered_articles, summary):
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
         server.starttls()
         server.login(SENDER_EMAIL, GMAIL_APP_PASSWORD)
-        server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, message.as_string())
+        server.sendmail(SENDER_EMAIL, RECIPIENT_EMAILS, message.as_string())
     
-    print(f"✓ Email sent to {RECIPIENT_EMAIL}")
+    print(f"✓ Email sent to {RECIPIENT_EMAILS}")
 
 
 if __name__ == "__main__":
