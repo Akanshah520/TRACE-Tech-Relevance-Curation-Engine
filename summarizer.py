@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-HF_API_TOKEN = os.getenv("HF_API_TOKEN")
-API_URL = "https://router.huggingface.co/v1/chat/completions"
-MODEL = "openai/gpt-oss-120b:cerebras"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
+MODEL = "llama-3.3-70b-versatile"
 
 
 def strip_thinking_tags(text):
@@ -38,13 +38,13 @@ News:
 
 Bullet summary:"""
     
-    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+    headers = {"Authorization": f"Bearer {GROQ_API_KEY}"}
     payload = {
         "model": MODEL,
         "messages": [{"role": "user", "content": prompt}]
     }
     
-    response = requests.post(API_URL, headers=headers, json=payload, timeout=90)
+    response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
     
     if response.status_code != 200:
         print(f"✗ Error {response.status_code}: {response.text[:300]}")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     filtered = filter_articles(articles, top_k=5)
     print(f"✓ Filtered to {len(filtered)} articles\n")
     
-    print("Summarizing...")
+    print("Summarizing via Groq...")
     summary = summarize_articles(filtered)
     
     print("\n" + "=" * 60)
