@@ -2,7 +2,7 @@ name: TRACE Daily Digest
 
 on:
   schedule:
-    - cron: '37 5 * * *'  # ~11:07 AM IST
+    - cron: '10 5 * * *'  #  IST
   workflow_dispatch:  # allows manual trigger for testing
 
 jobs:
