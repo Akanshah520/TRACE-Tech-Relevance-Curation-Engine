@@ -1,6 +1,27 @@
 import requests
+import feedparser
 from bs4 import BeautifulSoup
 from datetime import datetime
+
+
+def scrape_rss_feed(feed_url, source_name, limit=10):
+    """Generic RSS scraper - works for any standard RSS/Atom feed."""
+    try:
+        feed = feedparser.parse(feed_url)
+        articles = []
+        
+        for entry in feed.entries[:limit]:
+            articles.append({
+                'source': source_name,
+                'title': entry.title,
+                'url': entry.link,
+                'timestamp': datetime.now().isoformat()
+            })
+        
+        return articles
+    except Exception as e:
+        print(f"Error scraping {source_name} RSS: {e}")
+        return []
 
 def scrape_hacker_news(limit=15):
     headers = {
@@ -63,8 +84,10 @@ def get_all_articles():
     all_articles = []
     all_articles.extend(scrape_hacker_news(limit=15))
     all_articles.extend(scrape_arxiv_ai(limit=10))
+    all_articles.extend(scrape_rss_feed("https://techcrunch.com/feed/", "TechCrunch", limit=10))
+    all_articles.extend(scrape_rss_feed("https://www.theverge.com/rss/index.xml", "The Verge", limit=10))
+    all_articles.extend(scrape_rss_feed("https://feeds.arstechnica.com/arstechnica/index", "Ars Technica", limit=10))
     return all_articles
-
 
 if __name__ == "__main__":
     articles = get_all_articles()
