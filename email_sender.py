@@ -12,6 +12,20 @@ GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
 RECIPIENT_EMAILS = os.getenv("RECIPIENT_EMAIL", "").strip().split(",")
 RECIPIENT_EMAILS = [email.strip() for email in RECIPIENT_EMAILS if email.strip()]
 
+load_dotenv()
+
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+
+# Toggle: "true" sends to every address in RECIPIENT_EMAIL (comma-separated),
+# anything else (or unset) sends to just the first address — fails safely toward "one recipient."
+MULTI_RECIPIENT_MODE = os.getenv("MULTI_RECIPIENT_MODE", "false").strip().lower() == "true"
+
+_raw_recipients = os.getenv("RECIPIENT_EMAIL", "").strip().split(",")
+_raw_recipients = [email.strip() for email in _raw_recipients if email.strip()]
+
+RECIPIENT_EMAILS = _raw_recipients if MULTI_RECIPIENT_MODE else _raw_recipients[:1]
+
 
 def format_email_body(filtered_articles, summary):
     date_str = datetime.now().strftime("%B %d, %Y")
