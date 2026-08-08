@@ -3,67 +3,61 @@
 # 🎯 TRACE
 ### Tech Relevance & Curation Engine
 
-*An autonomous pipeline that scrapes, scores, and summarizes daily tech news — delivered straight to your inbox at 11 AM, every day, for free.*
+*A fully automated pipeline that scrapes, scores, and summarizes daily tech news — delivered to your inbox every morning, for $0/month.*
 
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![GitHub Actions](https://img.shields.io/badge/Automated%20via-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/features/actions)
-[![HuggingFace](https://img.shields.io/badge/Powered%20by-HuggingFace%20Inference-FFD21E?logo=huggingface&logoColor=black)](https://huggingface.co/)
-[![Cost](https://img.shields.io/badge/Infra%20Cost-%240%2Fmonth-brightgreen)]()
-[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
+
 
 </div>
 
 ---
 
-## 📌 What This Is
+## 📌 The Problem
 
-Tech news moves faster than anyone can read. TRACE reads it for you.
+Tech news moves faster than anyone can read. Most curation is either heavily paid, algorithmically optimized for clicks rather than substance, or just a firehose of headlines with no filter for what actually matters.
 
-Every morning, TRACE scrapes multiple tech news sources, uses an LLM to score each article on **actual impact** — architecture, market, and job relevance — filters out the noise, and emails you a tight 5-bullet briefing with links to the full stories.
-
-No dashboards to check. No newsletters to skim. It just shows up.
+**TRACE** answers a narrower, more useful question every morning: *of everything published today, what would actually change how you build, hire, or think about the industry?*
 
 ---
 
 ## ⚙️ How It Works
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌───────────────┐     ┌─────────────┐
-│   SCRAPE    │ ──▶ │    FILTER    │ ──▶ │   SUMMARIZE   │ ──▶ │    EMAIL    │
-│             │     │              │     │               │     │             │
-│ Hacker News │     │ LLM scores   │     │ LLM condenses │     │ HTML digest │
-│ arXiv AI    │     │ by impact:   │     │ top 5 into    │     │ w/ links,   │
-│ + more soon │     │ Arch/Market/ │     │ 5 clean       │     │ sent via    │
-│             │     │ Job (1-10)   │     │ bullets       │     │ Gmail SMTP  │
-└─────────────┘     └──────────────┘     └───────────────┘     └─────────────┘
+┌──────────────┐     ┌───────────────┐     ┌────────────────┐     ┌──────────────┐
+│    SCRAPE    │ ──▶ │    FILTER     │ ──▶ │   SUMMARIZE    │ ──▶ │    DELIVER   │
+│              │     │               │     │                │     │              │
+│  5 sources,  │     │  LLM scores   │     │  LLM condenses │     │  Styled HTML │
+│  ~50-55      │     │  every article│     │  the top 5     │     │  digest with │
+│  articles/day│     │  on 3 impact  │     │  into 5 tight  │     │  color-coded │
+│              │     │  dimensions   │     │  bullets       │     │  impact tags │
+└──────────────┘     └───────────────┘     └────────────────┘     └──────────────┘
 ```
 
-Triggered daily by a **GitHub Actions cron job** — runs on GitHub's infrastructure, not your machine. Set it up once, forget it exists, and it just keeps working.
+Triggered daily by a **GitHub Actions cron job**  runs entirely on GitHub's infrastructure. No server, no local machine, no manual step. It just shows up.
 
 ---
 
 ## ✨ Features
 
-- 🔍 **Multi-source scraping** — currently Hacker News + arXiv AI, designed to extend to more
-- 🧠 **LLM-based relevance filtering** — scores articles on architecture, market, and job impact, not just popularity
-- ✍️ **Concise summarization** — 5 bullets, one sentence each, no fluff
-- 📬 **HTML email digest** — clean formatting, direct links, impact scores visible per article
-- ⏰ **Fully automated** — GitHub Actions cron, runs daily at 11:00 AM IST, zero manual effort
-- 💰 **$0/month** — built entirely on free-tier infrastructure (HuggingFace Inference API + GitHub Actions)
-- 🧩 **Modular architecture** — each pipeline stage is an independent, testable component
+- 🔍 **Multi-source aggregation**: Hacker News, arXiv AI, TechCrunch, The Verge, and Ars Technica, scraped and normalized into one unified stream
+- 🧠 **Multi-dimensional LLM filtering**: every article is scored 1–10 across three independent axes (**architecture impact**, **market impact**, **job relevance**), not ranked by popularity or recency
+- 📉 **~90% noise reduction**: ~50-55 raw articles filtered down to the 5 that actually matter, daily
+- ✍️ **Tight, consistent summarization**: 5 bullets, one sentence each, no filler
+- 📬 **Designed HTML digest**: card-based layout, color-coded impact badges, not a plain-text dump
+- 👥 **Configurable delivery**: toggle between single-recipient and multi-recipient delivery via one environment variable
+- ⏰ **Fully unattended automation**: GitHub Actions cron, daily, zero manual triggering required
+- 💰 **$0/month**: built entirely on free-tier infrastructure (Groq's free API tier + GitHub Actions' free CI/CD minutes)
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Why |
+| Layer | Technology | Why This Choice |
 |---|---|---|
-| Scraping | `requests` + `BeautifulSoup` | Lightweight, no headless browser overhead |
-| Filtering | HuggingFace Inference API (fast chat model) | Free tier, sub-15s inference, right-sized for a ranking task |
-| Summarization | HuggingFace Inference API (same model) | Instruction-following for strict bullet formatting |
-| Email | Gmail SMTP (`smtplib`) | Free, secure via app passwords, no extra service dependency |
-| Scheduling | GitHub Actions (`cron`) | Free tier, reliable, zero server management |
-| Secrets | GitHub Encrypted Secrets / `.env` (local) | Credentials never touch source control |
+| Scraping | `requests`, `BeautifulSoup`, `feedparser` | HTML scraping for sources without feeds; RSS parsing for the rest — more stable than scraping raw HTML wherever a feed is available |
+| Filtering & Summarization | Groq API (`llama-3.3-70b-versatile`) | Fast, free-tier inference; deliberately *not* a heavyweight reasoning model — ranking and summarization don't need one, and a lighter model returns in seconds instead of timing out |
+| Email | Gmail SMTP (`smtplib`) | No third-party email service dependency; secured via app-specific passwords |
+| Scheduling | GitHub Actions (`cron`) | Free tier, no server to maintain, runs whether or not any machine of mine is on |
+| Secrets | GitHub Encrypted Secrets / local `.env` | Credentials never touch source control, verified via `.gitignore` |
 
 ---
 
@@ -74,22 +68,22 @@ tech_news_agent/
 ├── .github/
 │   └── workflows/
 │       └── daily_trace.yml      # Cron schedule + CI/CD pipeline definition
-├── scraper.py                    # Stage 1 — pulls articles from all sources
-├── filter_agent.py                # Stage 2 — LLM scores & ranks by impact
-├── summarizer.py                  # Stage 3 — condenses top picks into bullets
-├── email_sender.py                # Stage 4 — formats & sends the digest
+├── scraper.py                    # Stage 1 — pulls & normalizes articles from all 5 sources
+├── filter_agent.py                # Stage 2 — LLM scores every article on 3 impact axes
+├── summarizer.py                  # Stage 3 — condenses the top 5 into clean bullets
+├── email_sender.py                # Stage 4 — builds & sends the styled digest
 ├── main.py                        # Orchestrates all 4 stages in sequence
 ├── requirements.txt               # Locked dependency versions
 └── .gitignore                     # Excludes .env and venv/ from version control
 ```
 
-Each stage can be run and tested independently — `python scraper.py` works on its own, as does every other file. `main.py` is the only thing that chains them together.
+Every stage is independently runnable and testable, `python scraper.py` works standalone, as does every other file. `main.py` is the only thing that chains them together end-to-end.
 
 ---
 
 ## 🚀 Running It Yourself
 
-### 1. Clone & set up environment
+### 1. Clone & set up the environment
 
 ```bash
 git clone https://github.com/Akanshah520/TRACE-Tech-Relevance-Curation-Engine.git
@@ -107,13 +101,14 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 
 ```env
-HF_API_TOKEN=your_huggingface_token
+GROQ_API_KEY=your_groq_api_key
 SENDER_EMAIL=your_gmail_address
 GMAIL_APP_PASSWORD=your_16_char_app_password
-RECIPIENT_EMAIL=where_to_send_the_digest
+RECIPIENT_EMAIL=recipient1@example.com,recipient2@example.com
+MULTI_RECIPIENT_MODE=true
 ```
 
-> **Note:** `HF_API_TOKEN` needs the *"Make calls to Inference Providers"* fine-grained permission. `GMAIL_APP_PASSWORD` requires 2-Step Verification enabled on your Google account — generate one at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords).
+> **Note:** `GMAIL_APP_PASSWORD` requires 2-Step Verification enabled on your Google account — generate one at [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords). Set `MULTI_RECIPIENT_MODE=false` to send only to the first address in `RECIPIENT_EMAIL`.
 
 ### 3. Run the full pipeline
 
@@ -121,33 +116,64 @@ RECIPIENT_EMAIL=where_to_send_the_digest
 python main.py
 ```
 
-### 4. Automate it (optional)
+### 4. Automate it
 
-Add the same 4 values as **Repository Secrets** under `Settings → Secrets and variables → Actions`, then GitHub Actions handles the rest — see `.github/workflows/daily_trace.yml`.
+Add the same values as **Repository Secrets** under `Settings → Secrets and variables → Actions` — see `.github/workflows/daily_trace.yml` for the exact schedule and configuration.
 
 ---
 
-## 🧭 Design Decisions
+## 🧭 Design Decisions & Trade-offs
 
-A few deliberate choices worth calling out:
+A project is more than its code, here's the reasoning behind the choices that shaped this one.
 
-- **Free models over premium APIs for filtering/summarization** — these are structured ranking and instruction-following tasks, not tasks that require frontier-model reasoning. A right-sized free model performs comparably at zero cost.
-- **Two-stage LLM use (filter → summarize) instead of one monolithic prompt** — keeps each step debuggable and independently testable, and lets the reasoning behind article selection stay transparent (each article carries its own impact scores).
-- **GitHub Actions over a paid server** — the entire pipeline runs in well under the free tier's monthly minutes, so scheduling costs nothing.
+**Why not just use the biggest/most capable model available?**
+Filtering and summarization here are structured tasks — ranking and condensing, not open-ended reasoning. A large reasoning model was tested first and consistently timed out under the full article load; a lighter, purpose-fit model returns reliable results in a fraction of the time, at zero cost. Matching model size to task complexity, rather than defaulting to "biggest available," was a deliberate call.
+
+**Why migrate inference providers mid-build?**
+The original provider's free tier carried a very small monthly credit ceiling, discovered only once real usage patterns were tested — not a hypothetical concern, an actual constraint hit during development. Migrating to a provider with a more generous, request-based free tier solved this without introducing any cost.
+
+**Why RSS feeds over raw HTML scraping wherever possible?**
+Raw HTML scraping breaks silently whenever a site redesigns its markup. RSS feeds are structured and meant for exactly this kind of automated consumption — more maintenance-resilient for sources that offer them.
+
+**Why three independent impact scores instead of one relevance score?**
+A single "relevance" number collapses distinct signals into one — something can be architecturally significant without being a hiring-market story, or vice versa. Scoring architecture, market, and job impact separately preserves that nuance and makes the *reasoning* behind each pick auditable, not just the ranking.
+
+---
+
+## 🐛 What Went Wrong (And What It Taught)
+
+Real projects break in real ways — a few of the more instructive ones from building this:
+
+- **A third-party API was deprecated mid-development.** The original inference endpoint stopped resolving entirely partway through the build — not a code bug, an entire hosting architecture change on the provider's side. Diagnosed via direct DNS failure investigation rather than assumption, and rebuilt against the new endpoint structure.
+- **A reasoning model silently over-engineered a simple task.** Using a large chain-of-thought model for article ranking caused consistent request timeouts — the model was "thinking" through a task that didn't need deep reasoning. Swapping to a lighter, purpose-fit model resolved it in one change.
+- **Credentials with invisible whitespace caused two separate authentication failures**, in two different systems (SMTP and an API header), diagnosed both times by isolating the exact byte-length of the loaded value rather than guessing at the cause.
+
+---
+
+## 📊 By the Numbers
+
+| Metric | Value |
+|---|---|
+| Sources aggregated | 5 |
+| Articles processed per run | ~50–55 |
+| Articles surfaced per digest | 5 |
+| Noise reduction rate | ~90% |
+| Monthly infrastructure cost | $0 |
+| Manual steps required after deployment | 0 |
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Add more sources (TechCrunch, The Verge, GitHub Trending)
-- [ ] Track click-through data to refine filtering criteria over time
-- [ ] Store historical digests for trend analysis
-- [ ] Slack/Discord delivery option alongside email
+- [ ] Weekly "everything that mattered but didn't make the cut" digest, pulling from a rolling historical archive
+- [ ] Lightweight faithfulness/verification pass on generated summaries
+- [ ] Quantitative quality metrics tracked per run (filter ratio, source diversity, summary consistency)
+- [ ] Additional sources via RSS
 
 ---
 
 <div align="center">
 
-**Built with curiosity, a lot of debugging, and zero dollars in infrastructure cost.**
+**Built, broken, debugged, and shipped — one deliberate decision at a time.**
 
 </div>

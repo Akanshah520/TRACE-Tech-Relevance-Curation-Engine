@@ -9,9 +9,13 @@ load_dotenv()
 
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
-RECIPIENT_EMAILS = os.getenv("RECIPIENT_EMAIL", "").strip().split(",")
-RECIPIENT_EMAILS = [email.strip() for email in RECIPIENT_EMAILS if email.strip()]
 
+MULTI_RECIPIENT_MODE = os.getenv("MULTI_RECIPIENT_MODE", "false").strip().lower() == "true"
+
+_raw_recipients = os.getenv("RECIPIENT_EMAIL", "").strip().split(",")
+_raw_recipients = [email.strip() for email in _raw_recipients if email.strip()]
+
+RECIPIENT_EMAILS = _raw_recipients if MULTI_RECIPIENT_MODE else _raw_recipients[:1]
 
 def format_email_body(filtered_articles, summary):
     date_str = datetime.now().strftime("%B %d, %Y")
@@ -128,7 +132,7 @@ def send_digest(filtered_articles, summary):
         server.login(SENDER_EMAIL, GMAIL_APP_PASSWORD)
         server.sendmail(SENDER_EMAIL, RECIPIENT_EMAILS, message.as_string())
     
-    print(f"✓ Email sent to {RECIPIENT_EMAILS}")
+    print(f"✓ Email sent to {len(RECIPIENT_EMAILS)} recipients")
 
 
 if __name__ == "__main__":

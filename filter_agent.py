@@ -32,27 +32,30 @@ Score each on THREE dimensions (1-10 each):
 2. MARKET_IMPACT: Business implications? Hiring/competition changes?
 3. JOB_IMPACT: How relevant is this to what engineers need to know?
 
-Return ONLY a valid JSON array with the top {top_k} DISTINCT articles (no duplicates, no repeated titles). No explanation, no markdown, just the JSON array:
-[
-  {{
-    "rank": 1,
-    "title": "article title",
-    "url": "article url",
-    "source": "source name",
-    "architecture_impact": 8,
-    "market_impact": 6,
-    "job_impact": 7,
-    "reason": "brief explanation of why this matters"
-  }}
-]
+Return a JSON object with a single key "articles", containing the top {top_k} DISTINCT articles (no duplicates). No explanation, no markdown — valid JSON only:
+{{
+  "articles": [
+    {{
+      "rank": 1,
+      "title": "article title",
+      "url": "article url",
+      "source": "source name",
+      "architecture_impact": 8,
+      "market_impact": 6,
+      "job_impact": 7,
+      "reason": "brief explanation of why this matters"
+    }}
+  ]
+}}
 
 ARTICLES TO EVALUATE:
 {article_text}"""
     
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}"}
     payload = {
-        "model": MODEL,
-        "messages": [{"role": "user", "content": prompt}]
+    "model": MODEL,
+    "messages": [{"role": "user", "content": prompt}],
+    "response_format": {"type": "json_object"}
     }
     
     response = requests.post(API_URL, headers=headers, json=payload, timeout=60)
@@ -64,15 +67,7 @@ ARTICLES TO EVALUATE:
     raw_content = response.json()["choices"][0]["message"]["content"]
     cleaned = strip_thinking_tags(raw_content)
     
-    if '```json' in cleaned:
-        cleaned = cleaned.split('```json')[1].split('```')[0]
-    elif '```' in cleaned:
-        cleaned = cleaned.split('```')[1].split('```')[0]
-    
-    if '[' in cleaned:
-        cleaned = cleaned[cleaned.find('['):cleaned.rfind(']')+1]
-    
-    parsed = json.loads(cleaned.strip())
+    parsed = json.loads(cleaned.strip())["articles"]
     
     seen_titles = set()
     deduped = []
