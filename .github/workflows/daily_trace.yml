@@ -27,5 +27,5 @@ jobs:
           SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
-MULTI_RECIPIENT_MODE: ${{ secrets.MULTI_RECIPIENT_MODE }}
+          MULTI_RECIPIENT_MODE: ${{ secrets.MULTI_RECIPIENT_MODE }}
         run: python main.py
