@@ -30,6 +30,9 @@ def run_pipeline():
     filtered = filter_articles(articles, top_k=5)
     print(f"  → {len(filtered)} top articles selected\n")
 
+    if not filtered:
+        raise Exception("Filtering returned 0 articles — aborting before sending an empty digest.")
+
     print("[3/4] Summarizing...")
     summary = summarize_articles(filtered)
     print(f"  → Summary generated\n")
